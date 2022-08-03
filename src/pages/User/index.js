@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { searchUser } from "../../services";
-import { Box, Button, Container, Grid, Typography } from "@mui/material";
+import { searchUser, getRepos  } from "../../services";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
 import { TypographyIconBio } from "../../components";
 
 const User = () => {
   const { username } = useParams();
 
   const [userDetail, setUserDetail] = useState(null);
+  const [repos, setRepos] = useState([]);
 
   const fetchUser = async () => {
     const data = await searchUser(username);
@@ -15,8 +24,18 @@ const User = () => {
     console.log(data);
   };
 
+  const fetchRepos = async () => {
+    const data = await getRepos(username);
+    setRepos(data);
+    console.log("repos", data);
+  };
+
   useEffect(() => {
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    fetchRepos();
   }, []);
 
   return (
@@ -63,7 +82,26 @@ const User = () => {
                 text={userDetail.twitter_username}
               />
             </Grid>
-            <Grid item xs={12} md={8}></Grid>
+            <Grid item xs={12} md={8}>
+              <Typography variant="h5">Repositories</Typography>
+              <Box>
+                {repos.length > 0 &&
+                  repos.map((repo, index) => (
+                    <Box key={index} mt={3}>
+                      <Card>
+                        <CardContent>
+                          <Typography variant="h6" fontWeight="800">
+                            {repo.name}
+                          </Typography>
+                          <Typography variant="body1">
+                            {repo.language}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Box>
+                  ))}
+              </Box>
+            </Grid>
           </Grid>
         </Box>
       )}
